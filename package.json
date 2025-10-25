@@ -1,0 +1,32 @@
+{
+  "name": "trip-planner",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/image": "1.11.0",
+    "@nuxt/ui": "4.1.0",
+    "@pinia/nuxt": "^0.11.2",
+    "@tailwindcss/vite": "^4.1.16",
+    "install": "^0.13.0",
+    "nuxt": "^4.2.0",
+    "pinia": "^3.0.3",
+    "pinia-plugin-persistedstate": "^4.5.0",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.6.3",
+    "uuid": "^13.0.0",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3",
+    "vue-sonner": "^2.0.9",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}
