@@ -1,7 +1,7 @@
 # Trip Planner App
 
 A modern Vue 3 + Nuxt 4 application to plan trips efficiently, including flights, accommodations, car rentals, and
-stops. Built with **Pinia**, **TailwindCSS**, and **shadcn-vue** components for a clean, responsive UI.
+stops. Built with **Pinia**, **TailwindCSS**, and **Nuxt UI** components for a clean, responsive UI.
 
 ---
 
@@ -23,7 +23,7 @@ stops. Built with **Pinia**, **TailwindCSS**, and **shadcn-vue** components for 
 - [Vue 3](https://vuejs.org/) – Reactive frontend framework
 - [Pinia](https://pinia.vuejs.org/) – State management
 - [TailwindCSS](https://tailwindcss.com/) – Utility-first CSS framework
-- [shadcn-vue](https://shadcn-vue.com/) – UI components
+- [Nuxt UI](https://ui.nuxt.com/) – UI components
 - [uuid](https://www.npmjs.com/package/uuid) – Unique identifiers for flights, trips, and stops
 - [Zod](https://zod.dev/) – Schema validation for forms
 - [vue-sonner](https://github.com/philippsp/sonner) – Toast notifications
