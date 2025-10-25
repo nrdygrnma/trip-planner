@@ -1,75 +1,58 @@
-# Nuxt Minimal Starter
+# Trip Planner App
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern Vue 3 + Nuxt 4 application to plan trips efficiently, including flights, accommodations, car rentals, and
+stops. Built with **Pinia**, **TailwindCSS**, and **shadcn-vue** components for a clean, responsive UI.
 
-## Setup
+---
 
-Make sure to install dependencies:
+## Features
+
+- Manage multiple trips with separate itineraries
+- Add, edit, and delete **flights**, **car rentals**, **accommodations**, and **trip stops**
+- Real-time trip cost calculation with multi-currency support
+- Persistent data storage using `localStorage`
+- Intuitive and interactive forms with **VeeValidate** + **Zod** schemas
+- Modular, reusable components for scalability
+- Drag-and-drop support for assigning team members (if applicable)
+
+---
+
+## Tech Stack
+
+- [Nuxt 4](https://nuxt.com/) – Framework for Vue 3 with SSR support
+- [Vue 3](https://vuejs.org/) – Reactive frontend framework
+- [Pinia](https://pinia.vuejs.org/) – State management
+- [TailwindCSS](https://tailwindcss.com/) – Utility-first CSS framework
+- [shadcn-vue](https://shadcn-vue.com/) – UI components
+- [uuid](https://www.npmjs.com/package/uuid) – Unique identifiers for flights, trips, and stops
+- [Zod](https://zod.dev/) – Schema validation for forms
+- [vue-sonner](https://github.com/philippsp/sonner) – Toast notifications
+
+---
+
+## Installation
+
+Clone the repository:
 
 ```bash
-# npm
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
+```
+
+Install dependencies:
+
+```bash
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
+# or
 yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+Run the development server:
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
+# or
 yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Visit http://localhost:3000 in your browser.
