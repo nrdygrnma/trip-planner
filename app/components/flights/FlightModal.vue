@@ -7,13 +7,13 @@
     @update:open="$emit('update:open', $event)"
   >
     <template #body>
-      <FlightOptionForm :state="state" @submit="handleSubmit" />
+      <FlightOptionForm ref="formRef" :state="state" @submit="handleSubmit" />
     </template>
 
     <template #footer="{ close }" class="space-x-2">
       <UButton
         :label="isEdit ? 'Save Changes' : 'Add Flight'"
-        @click="submitForm"
+        @click="handleSubmit"
       />
       <UButton label="Cancel" variant="outline" @click="closeModal" />
     </template>
@@ -21,12 +21,12 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, watch } from "vue";
-import { v4 as uuidv4 } from "uuid";
-import { toast } from "vue-sonner";
+import {computed, reactive, watch} from "vue";
+import {v4 as uuidv4} from "uuid";
+import {toast} from "vue-sonner";
 import FlightOptionForm from "./FlightOptionForm.vue";
-import type { FlightOption } from "~/types/tripTypes";
-import { useTripStore } from "~/stores/trip";
+import type {FlightOption} from "~/types/tripTypes";
+import {useTripStore} from "~/stores/trip";
 
 const props = defineProps<{
   open: boolean;
@@ -37,6 +37,7 @@ const emit = defineEmits<{
   (e: "update:open", value: boolean): void;
 }>();
 
+const formRef = ref<InstanceType<typeof FlightOptionForm> | null>(null);
 const tripStore = useTripStore();
 
 const isEdit = computed(() => !!props.flight);
@@ -85,7 +86,9 @@ const handleSubmit = () => {
   closeModal();
 };
 
-const submitForm = () => handleSubmit();
+const submitForm = () => {
+  formRef.value?.submit();
+};
 const closeModal = () => emit("update:open", false);
 
 watch(

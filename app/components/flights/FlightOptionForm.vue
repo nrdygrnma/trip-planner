@@ -1,7 +1,8 @@
 <template>
   <UForm
+    ref="form"
     :schema="schema"
-    :state="state as Partial<FlightOption>"
+    :state="state as Partial<Schema>"
     class="space-y-4"
     @submit="onSubmit"
   >
@@ -36,11 +37,14 @@
       </UFormField>
     </div>
 
-    <div v-for="(s, i) in state.stopovers" :key="i" class="flex gap-2">
+    <div v-for="(s, i) in state.stopovers ?? []" :key="i" class="flex gap-2">
       <UFormField :name="`stopovers.${i}.airport`" label="Stopover Airport">
         <UInput v-model="s.airport" />
       </UFormField>
-      <UFormField label="Stopover Duration" name="s.durationMin">
+      <UFormField
+        :name="`stopovers.${i}.durationMin`"
+        label="Stopover Duration"
+      >
         <UInput v-model="s.durationMin" type="number" />
       </UFormField>
     </div>
@@ -85,6 +89,8 @@ const emit = defineEmits<{
   (e: "submit"): void;
 }>();
 
+const form = ref<any>();
+
 const classSelectItems = ref<SelectItem[]>([
   { label: "Economy", value: "economy" },
   { label: "Premium Economy", value: "premium_economy" },
@@ -111,11 +117,13 @@ const schema = z.object({
     .optional(),
   class: z.enum(["economy", "premium_economy", "business"]),
   baseFare: z.number().nonnegative(),
-  extras: z.object({
-    seatReservation: z.number().nonnegative(),
-    checkedBaggage: z.number().nonnegative(),
-    other: z.number().nonnegative(),
-  }),
+  extras: z
+    .object({
+      seatReservation: z.number().nonnegative(),
+      checkedBaggage: z.number().nonnegative(),
+      other: z.number().nonnegative(),
+    })
+    .optional(),
   currency: z.string().min(1),
 });
 
@@ -126,6 +134,13 @@ watch(classSelectValue, (val) => {
 });
 
 const onSubmit = (event: FormSubmitEvent<Schema>) => {
+  if (!event) return;
   emit("submit");
 };
+
+const submit = () => {
+  form.value?.submit();
+};
+
+defineExpose({ submit });
 </script>

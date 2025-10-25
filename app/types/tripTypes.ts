@@ -30,9 +30,9 @@ export interface FlightOption {
   class: "economy" | "premium_economy" | "business";
   baseFare: number;
   extras: {
-    seatReservation?: number;
-    checkedBaggage?: number;
-    other?: number;
+    seatReservation: number;
+    checkedBaggage: number;
+    other: number;
   };
   currency: string;
   totalCostEUR?: number;
