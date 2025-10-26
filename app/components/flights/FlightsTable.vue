@@ -13,7 +13,9 @@
           <th class="p-2 text-left">Departure</th>
           <th class="p-2 text-left">Arrival</th>
           <th class="p-2 text-left">Class</th>
+          <th class="p-2 text-left">Stops</th>
           <th class="p-2 text-left">Base Fare</th>
+          <th class="p-2 text-left">Total Price</th>
           <th class="p-2 text-left">Actions</th>
         </tr>
       </thead>
@@ -23,12 +25,18 @@
           :key="flight.id"
           class="border-t border-gray-200 hover:bg-gray-50"
         >
-          <td class="p-2">{{ flight.airline }}</td>
-          <td class="p-2">{{ flight.from }} → {{ flight.to }}</td>
+          <td class="p-2">{{ flight.airline?.label }}</td>
+          <td class="p-2">{{ flight.fromAirport?.value }} → {{ flight.toAirport?.value }}</td>
           <td class="p-2">{{ formatDate(flight.departureDate) }}</td>
           <td class="p-2">{{ formatDate(flight.arrivalDate) }}</td>
-          <td class="p-2 capitalize">{{ flight.class }}</td>
-          <td class="p-2">{{ flight.baseFare }} {{ flight.currency }}</td>
+          <td class="p-2 capitalize">{{ flight.travelClass }}</td>
+          <td class="p-2 text-center">{{ flight.stopsCount }}</td>
+          <td class="p-2">
+            {{ currencySymbol(flight.currency) }}{{ Number(flight.baseFare || 0).toFixed(2) }}
+          </td>
+          <td class="p-2 font-semibold">
+            {{ currencySymbol(flight.currency) }}{{ totalPrice(flight).toFixed(2) }}
+          </td>
           <td class="p-2 flex gap-2">
             <UButton
               label="Edit"
@@ -45,7 +53,7 @@
           </td>
         </tr>
         <tr v-if="flights.length === 0">
-          <td class="p-4 text-center" colspan="7">No flights added yet.</td>
+          <td class="p-4 text-center" colspan="9">No flights added yet.</td>
         </tr>
       </tbody>
     </table>
@@ -111,6 +119,28 @@ const handleFlightSubmit = (flight: FlightOption) => {
 };
 
 const formatDate = (date: string) => {
-  return new Date(date).toLocaleString();
+  if (!date) return "-";
+  const [year, month, day] = date.split("-");
+  return `${day}.${month}.${year}`;
+};
+
+const totalPrice = (flight: FlightOption) => {
+  const extras = flight.extras || { seatReservation: 0, checkedBaggage: 0, other: 0 };
+  const total = Number(flight.baseFare || 0) + Number(extras.seatReservation || 0) + Number(extras.checkedBaggage || 0) + Number(extras.other || 0);
+  return Number.isFinite(total) ? total : 0;
+};
+
+const currencySymbol = (code?: string) => {
+  if (!code) return "";
+  switch (code) {
+    case "EUR":
+      return "€";
+    case "USD":
+      return "$";
+    case "XCD":
+      return "EC$";
+    default:
+      return code + " ";
+  }
 };
 </script>

@@ -21,7 +21,11 @@ const showCreateTrip = ref(false);
 
 const tripStore = useTripStore();
 
-onMounted(() => {
+onMounted(async () => {
   tripStore.ensureDefaultTrip();
+  tripStore.loadFromLocalStorage();
+  if (tripStore.currentTripId) {
+    await tripStore.loadFlights(tripStore.currentTripId);
+  }
 });
 </script>

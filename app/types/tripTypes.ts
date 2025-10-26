@@ -5,16 +5,12 @@ export interface Trip {
   endDate: string | undefined;
   currency: string;
   people: number;
+  totalCostEUR: number;
   selectedFlightId?: string;
   selectedCarRentalId?: string;
   stops: TripStop[];
   flights: FlightOption[];
   carRentals: CarRentalOption[];
-}
-
-export interface Stopover {
-  airport: string;
-  durationMin?: number;
 }
 
 export interface Airline {
@@ -34,15 +30,13 @@ export interface FlightExtras {
 }
 
 export interface FlightOption {
-  id: string;
+  id?: string;
   airline: { label: string; value: string };
   fromAirport: { label: string; value: string };
   toAirport: { label: string; value: string };
   departureDate: string;
   arrivalDate: string;
-  durationInAirMin: number;
-  durationLayoversMin: number;
-  stopovers?: Stopover[];
+  stopsCount: number;
   travelClass: "economy" | "premium_economy" | "business";
   baseFare: number;
   extras?: FlightExtras;

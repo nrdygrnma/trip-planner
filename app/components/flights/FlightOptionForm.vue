@@ -6,19 +6,21 @@
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormField class="w-1/2" label="Airline" name="provider">
+    <UFormField class="w-1/2" label="Airline" name="airline">
       <BoundSelect
         v-model="airlineSelectValue"
         :items="airlineSelectItems"
+        class="w-full"
         placeholder="Select airline"
       />
     </UFormField>
 
-    <div class="flex gap-4">
+    <div class="flex gap-2">
       <UFormField class="w-1/2" label="From Airport" name="fromAirport">
         <BoundSelect
           v-model="departureAirportValue"
           :items="airportSelectItems"
+          class="w-full"
           placeholder="Select departure airport"
         />
       </UFormField>
@@ -27,12 +29,13 @@
         <BoundSelect
           v-model="arrivalAirportValue"
           :items="airportSelectItems"
+          class="w-full"
           placeholder="Select arrival airport"
         />
       </UFormField>
     </div>
 
-    <div class="flex gap-4">
+    <div class="flex gap-2">
       <UFormField class="w-1/2" label="Departure" name="departureDate">
         <UInput v-model="state.departureDate" class="w-full" type="date" />
       </UFormField>
@@ -46,24 +49,9 @@
       </UFormField>
     </div>
 
-    <div class="flex gap-4">
-      <UFormField label="Duration in Air (min)" name="durationInAirMin">
-        <UInput v-model.number="state.durationInAirMin" type="number" />
-      </UFormField>
-      <UFormField label="Layover Duration (min)" name="durationLayoversMin">
-        <UInput v-model.number="state.durationLayoversMin" type="number" />
-      </UFormField>
-    </div>
-
-    <div v-for="(s, i) in state.stopovers ?? []" :key="i" class="flex gap-2">
-      <UFormField :name="`stopovers.${i}.airport`" label="Stopover Airport">
-        <UInput v-model="s.airport" />
-      </UFormField>
-      <UFormField
-        :name="`stopovers.${i}.durationMin`"
-        label="Stopover Duration"
-      >
-        <UInput v-model="s.durationMin" type="number" />
+    <div class="flex gap-2">
+      <UFormField class="w-1/2" label="Number of Stops" name="stopsCount">
+        <UInput v-model.number="state.stopsCount" min="0" type="number" />
       </UFormField>
     </div>
 
@@ -112,13 +100,14 @@ import { normalizeAirline } from "~/utils/airlineHelper";
 import { normalizeAirport } from "~/utils/airportHelper";
 import { airlines } from "~/data/airlines";
 import { airports } from "~/data/airports";
+import { calculateTotalCost } from "~/utils/calculateHelper";
 
 const props = defineProps<{
   state?: FlightOption;
 }>();
 
 const emit = defineEmits<{
-  (e: "submit"): void;
+  (e: "submit", value: FlightOption): void;
 }>();
 
 const form = ref<any>();
@@ -129,9 +118,7 @@ const state = reactive<Partial<FlightOption>>({
   toAirport: normalizeAirport(props.state?.toAirport),
   departureDate: "",
   arrivalDate: "",
-  durationInAirMin: 0,
-  durationLayoversMin: 0,
-  stopovers: [],
+  stopsCount: 0,
   travelClass: "economy",
   baseFare: 0,
   currency: "EUR",
@@ -159,7 +146,11 @@ const travelClassSelectItem = ref<SelectItem[]>([
   { label: "Business", value: "business" },
 ]);
 
-const currencySelectItem = ref<string[]>(["USD", "EUR", "XCD"]);
+const currencySelectItem = ref<SelectItem[]>([
+  { label: "EUR (€)", value: "EUR" },
+  { label: "USD ($)", value: "USD" },
+  { label: "XCD (EC$)", value: "XCD" },
+]);
 
 const airlineSelectValue = ref<{ label: string; value: string } | undefined>(
   undefined,
@@ -188,16 +179,7 @@ const schema = z.object({
   }),
   departureDate: z.string().min(1),
   arrivalDate: z.string().min(1),
-  durationInAirMin: z.number().int().nonnegative(),
-  durationLayoversMin: z.number().int().nonnegative(),
-  stopovers: z
-    .array(
-      z.object({
-        airport: z.string().min(1),
-        durationMin: z.number().int().nonnegative(),
-      }),
-    )
-    .optional(),
+  stopsCount: z.number().int().nonnegative(),
   travelClass: z.enum(["economy", "premium_economy", "business"]),
   baseFare: z.number().nonnegative(),
   extras: z
@@ -214,7 +196,26 @@ type Schema = z.output<typeof schema>;
 
 const onSubmit = (event: FormSubmitEvent<Schema>) => {
   if (!event) return;
-  emit("submit");
+  // Emit the fully populated form state as a FlightOption payload
+  const payload: FlightOption = {
+    id: (props.state as any)?.id, // preserve id for edit if present
+    airline: state.airline as { label: string; value: string },
+    fromAirport: state.fromAirport as { label: string; value: string },
+    toAirport: state.toAirport as { label: string; value: string },
+    departureDate: state.departureDate || "",
+    arrivalDate: state.arrivalDate || "",
+    stopsCount: Number(state.stopsCount ?? 0),
+    travelClass: (state.travelClass as any) || "economy",
+    baseFare: Number(state.baseFare ?? 0),
+    totalCostEUR: calculateTotalCost(state as FlightOption),
+    extras: (state.extras ?? {
+      seatReservation: 0,
+      checkedBaggage: 0,
+      other: 0,
+    }) as any,
+    currency: state.currency || "EUR",
+  };
+  emit("submit", payload);
 };
 
 const submit = () => {
@@ -259,6 +260,63 @@ watch(
 watch(currencySelectValue, (val) => {
   state.currency = val;
 });
+
+// Keep the select components in sync when editing existing flights
+function syncSelectsFromState() {
+  const findByValue = (
+    items: { label: string; value: string }[],
+    target?: { label: string; value: string },
+  ) => {
+    if (!target || !target.value) return undefined;
+    return items.find((i) => i.value === target.value) || (target as any);
+  };
+
+  airlineSelectValue.value = findByValue(
+    airlineSelectItems,
+    state.airline as any,
+  );
+  departureAirportValue.value = findByValue(
+    airportSelectItems,
+    state.fromAirport as any,
+  );
+  arrivalAirportValue.value = findByValue(
+    airportSelectItems,
+    state.toAirport as any,
+  );
+  classSelectValue.value = (state.travelClass as any) || "economy";
+  currencySelectValue.value = state.currency || "EUR";
+}
+
+watch(
+  () => props.state,
+  (newState) => {
+    if (!newState) {
+      // If cleared, just reflect current internal state to selects
+      syncSelectsFromState();
+      return;
+    }
+
+    // Rehydrate internal state from incoming props (Edit modal opens/changes)
+    state.airline = normalizeAirline(newState.airline);
+    state.fromAirport = normalizeAirport(newState.fromAirport);
+    state.toAirport = normalizeAirport(newState.toAirport);
+    state.departureDate = newState.departureDate || "";
+    state.arrivalDate = newState.arrivalDate || "";
+    state.stopsCount = newState.stopsCount ?? 0;
+    state.travelClass = (newState.travelClass as any) || "economy";
+    state.baseFare = newState.baseFare ?? 0;
+    state.currency = newState.currency || "EUR";
+    state.extras = {
+      seatReservation: newState.extras?.seatReservation ?? 0,
+      checkedBaggage: newState.extras?.checkedBaggage ?? 0,
+      other: newState.extras?.other ?? 0,
+    };
+
+    // Now mirror into the select UI bindings
+    syncSelectsFromState();
+  },
+  { immediate: true, deep: true },
+);
 
 defineExpose({ submit });
 </script>

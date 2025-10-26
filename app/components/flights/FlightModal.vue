@@ -13,7 +13,7 @@
     <template #footer="{ close }" class="space-x-2">
       <UButton
         :label="isEdit ? 'Save Changes' : 'Add Flight'"
-        @click="handleSubmit"
+        @click="formRef?.submit()"
       />
       <UButton label="Cancel" variant="outline" @click="closeModal" />
     </template>
@@ -49,13 +49,7 @@ const getFlightState = (flight?: FlightOption): FlightOption => ({
   toAirport: flight?.toAirport || { label: "", value: "" },
   departureDate: flight?.departureDate || "",
   arrivalDate: flight?.arrivalDate || "",
-  durationInAirMin: flight?.durationInAirMin ?? 0,
-  durationLayoversMin: flight?.durationLayoversMin ?? 0,
-  stopovers:
-    flight?.stopovers?.map((s) => ({
-      airport: s.airport || "",
-      durationMin: s.durationMin ?? 0,
-    })) || [],
+  stopsCount: flight?.stopsCount ?? 0,
   travelClass: flight?.travelClass || "economy",
   baseFare: flight?.baseFare ?? 0,
   extras: {
@@ -68,18 +62,20 @@ const getFlightState = (flight?: FlightOption): FlightOption => ({
 
 const state = reactive<FlightOption>(getFlightState(props.flight));
 
-const handleSubmit = () => {
+const handleSubmit = (payload: FlightOption) => {
   const tripId = tripStore.currentTripId;
   if (!tripId) {
     toast.error("No current trip selected");
     return;
   }
 
+  const data: FlightOption = { ...payload, id: payload.id || uuidv4() };
+
   if (isEdit.value) {
-    tripStore.updateFlight(tripId, { ...state });
+    tripStore.updateFlight(tripId, data);
     toast.success("Flight updated successfully");
   } else {
-    tripStore.addFlight(tripId, { ...state });
+    tripStore.addFlight(tripId, data);
     toast.success("Flight added successfully");
   }
 

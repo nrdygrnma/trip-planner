@@ -30,6 +30,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.71",
     "prettier": "^3.6.2"
   },
   "trustedDependencies": [

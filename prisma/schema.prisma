@@ -7,23 +7,90 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Trip {
+  id           String  @id @default(cuid())
+  title        String
+  startDate    String?
+  endDate      String?
+  currency     String
+  people       Int     @default(1)
+  totalCostEUR Float?
+
+  selectedFlightId    String? // optional selected flight
+  selectedCarRentalId String? // optional selected car rental
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  flights    Flight[]          @relation("TripFlights")
+  carRentals CarRentalOption[] @relation("TripCarRentals")
+  stops      TripStop[]        @relation("TripStops")
+}
+
 model Flight {
-  id                  String @id @default(cuid())
-  tripId              String
-  airlineLabel        String
-  airlineCode         String
-  fromAirportLabel    String
-  fromAirportCode     String
-  toAirportLabel      String
-  toAirportCode       String
-  departureDate       String
-  arrivalDate         String
-  durationInAirMin    Int
-  durationLayoversMin Int
-  stopovers           Json
-  travelClass         String
-  baseFare            Float
-  extras              Json
-  currency            String
-  totalCostEUR        Float?
+  id               String   @id @default(cuid())
+  tripId           String
+  airlineLabel     String
+  airlineCode      String
+  fromAirportLabel String
+  fromAirportCode  String
+  toAirportLabel   String
+  toAirportCode    String
+  departureDate    String
+  arrivalDate      String
+  stopsCount       Int      @default(0)
+  travelClass      String
+  baseFare         Float
+  extras           Json
+  currency         String
+  totalCostEUR     Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  Trip             Trip[]   @relation("TripFlights")
+}
+
+model CarRentalOption {
+  id              String   @id @default(cuid())
+  tripId          String
+  company         String
+  type            String
+  pickupDate      String
+  dropOffDate     String
+  pickupLocation  String
+  dropOffLocation String
+  baseRate        Float
+  fees            Float
+  insurance       Json
+  currency        String
+  totalCostEUR    Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  Trip            Trip[]   @relation("TripCarRentals")
+}
+
+model TripStop {
+  id                      String                @id @default(cuid())
+  tripId                  String
+  name                    String
+  startDate               String
+  endDate                 String
+  lat                     Float?
+  lng                     Float?
+  selectedAccommodationId String?
+  Trip                    Trip                  @relation("TripStops", fields: [tripId], references: [id])
+  accommodations          AccommodationOption[] @relation("TripStopAccommodations")
+}
+
+model AccommodationOption {
+  id            String  @id @default(cuid())
+  tripStopId    String
+  title         String
+  provider      String?
+  roomType      String?
+  pricePerNight Float
+  currency      String
+  totalCostEUR  Float?
+  url           String?
+
+  TripStop TripStop[] @relation("TripStopAccommodations")
 }

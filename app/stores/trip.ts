@@ -1,10 +1,4 @@
-import type {
-  AccommodationOption,
-  CarRentalOption,
-  FlightOption,
-  Trip,
-  TripStop,
-} from "~/types/tripTypes";
+import type { AccommodationOption, CarRentalOption, FlightOption, Trip, TripStop } from "~/types/tripTypes";
 
 const currencyRates: Record<string, number> = {
   EUR: 1,
@@ -17,7 +11,19 @@ export const useTripStore = defineStore("trip", () => {
   const currentTripId = ref<string | null>(null);
 
   // --- Actions ---
-  function ensureDefaultTrip() {
+  async function loadFlights(tripId: string) {
+    try {
+      const flights = await $fetch<FlightOption[]>(
+        `/api/trips/${tripId}/flights`,
+      );
+      trips.value[tripId]!.flights = flights;
+      persistToLocalStorage();
+    } catch (err) {
+      console.error("Failed to fetch flights:", err);
+    }
+  }
+
+  async function ensureDefaultTrip() {
     if (!currentTripId.value || Object.keys(trips.value).length === 0) {
       const defaultId = "default-trip";
       trips.value[defaultId] = {
@@ -28,6 +34,7 @@ export const useTripStore = defineStore("trip", () => {
           .toISOString()
           .split("T")[0],
         people: 1,
+        totalCostEUR: 0,
         currency: "EUR",
         flights: [],
         carRentals: [],
@@ -37,6 +44,7 @@ export const useTripStore = defineStore("trip", () => {
       };
       currentTripId.value = defaultId;
       persistToLocalStorage();
+      await loadFlights(defaultId);
     }
   }
 
@@ -65,22 +73,21 @@ export const useTripStore = defineStore("trip", () => {
   }
 
   // Flights
+
   async function addFlight(tripId: string, flight: FlightOption) {
-    const { data, error } = await useFetch<FlightOption>(
-      `/api/trips/${tripId}/flights`,
-      {
-        method: "POST",
-        body: flight,
-      },
-    );
+    try {
+      const created = await $fetch<FlightOption>(
+        `/api/trips/${tripId}/flights`,
+        {
+          method: "POST",
+          body: flight,
+        },
+      );
 
-    if (error.value) {
-      console.error("Failed to add flight:", error.value);
-      return;
-    }
-
-    if (data.value) {
-      trips.value[tripId]!.flights.push(data.value);
+      trips.value[tripId]!.flights.push(created);
+      persistToLocalStorage();
+    } catch (err) {
+      console.error("Failed to add flight:", err);
     }
   }
 
@@ -153,12 +160,16 @@ export const useTripStore = defineStore("trip", () => {
     localStorage.setItem("currentTripId", currentTripId.value ?? "");
   }
 
-  function loadFromLocalStorage() {
+  async function loadFromLocalStorage() {
     const tripsData = localStorage.getItem("trips");
     if (tripsData) trips.value = JSON.parse(tripsData);
     const storedCurrent = localStorage.getItem("currentTripId");
     currentTripId.value = storedCurrent || null;
     ensureDefaultTrip();
+
+    if (currentTripId.value) {
+      await loadFlights(currentTripId.value);
+    }
   }
 
   // Currency conversion helper
@@ -240,6 +251,7 @@ export const useTripStore = defineStore("trip", () => {
     ensureDefaultTrip,
     createTrip,
     deleteTrip,
+    loadFlights,
     updateTrip,
     selectTrip,
     addFlight,
