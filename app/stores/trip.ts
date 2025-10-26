@@ -65,9 +65,23 @@ export const useTripStore = defineStore("trip", () => {
   }
 
   // Flights
-  function addFlight(tripId: string, flight: FlightOption) {
-    trips.value[tripId]!.flights.push(flight);
-    persistToLocalStorage();
+  async function addFlight(tripId: string, flight: FlightOption) {
+    const { data, error } = await useFetch<FlightOption>(
+      `/api/trips/${tripId}/flights`,
+      {
+        method: "POST",
+        body: flight,
+      },
+    );
+
+    if (error.value) {
+      console.error("Failed to add flight:", error.value);
+      return;
+    }
+
+    if (data.value) {
+      trips.value[tripId]!.flights.push(data.value);
+    }
   }
 
   function updateFlight(tripId: string, flight: FlightOption) {

@@ -67,6 +67,7 @@ import { useTripStore } from "~/stores/trip";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "vue-sonner";
 import type { UForm } from "#components";
+import type { Trip } from "~/types/tripTypes";
 
 const props = defineProps<{
   open: boolean;

@@ -21,12 +21,12 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, reactive, watch} from "vue";
-import {v4 as uuidv4} from "uuid";
-import {toast} from "vue-sonner";
+import { computed, reactive, watch } from "vue";
+import { v4 as uuidv4 } from "uuid";
+import { toast } from "vue-sonner";
 import FlightOptionForm from "./FlightOptionForm.vue";
-import type {FlightOption} from "~/types/tripTypes";
-import {useTripStore} from "~/stores/trip";
+import type { FlightOption } from "~/types/tripTypes";
+import { useTripStore } from "~/stores/trip";
 
 const props = defineProps<{
   open: boolean;
@@ -44,11 +44,11 @@ const isEdit = computed(() => !!props.flight);
 
 const getFlightState = (flight?: FlightOption): FlightOption => ({
   id: flight?.id || uuidv4(),
-  provider: flight?.provider || "",
+  provider: flight?.airline || "",
   from: flight?.from || "",
   to: flight?.to || "",
-  departureDateTime: flight?.departureDateTime || "",
-  arrivalDateTime: flight?.arrivalDateTime || "",
+  departureDate: flight?.departureDate || "",
+  arrivalDate: flight?.arrivalDate || "",
   durationInAirMin: flight?.durationInAirMin ?? 0,
   durationLayoversMin: flight?.durationLayoversMin ?? 0,
   stopovers:
@@ -56,7 +56,7 @@ const getFlightState = (flight?: FlightOption): FlightOption => ({
       airport: s.airport || "",
       durationMin: s.durationMin ?? 0,
     })) || [],
-  class: flight?.class || "economy",
+  travelClass: flight?.travelClass || "economy",
   baseFare: flight?.baseFare ?? 0,
   extras: {
     seatReservation: flight?.extras?.seatReservation ?? 0,
@@ -84,10 +84,6 @@ const handleSubmit = () => {
   }
 
   closeModal();
-};
-
-const submitForm = () => {
-  formRef.value?.submit();
 };
 const closeModal = () => emit("update:open", false);
 

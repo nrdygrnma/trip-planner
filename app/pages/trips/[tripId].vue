@@ -23,13 +23,13 @@
       <UButton class="mb-2" @click="openCarModal = true"
         >Add Car Rental</UButton
       >
-      <CarRentalsTable :cars="trip?.carRentals || []" :tripId="tripId" />
+      <!--      <CarRentalsTable :cars="trip?.carRentals || []" :tripId="tripId" />-->
     </section>
 
     <section>
       <h2 class="text-2xl font-medium">Stops & Accommodations</h2>
       <UButton class="mb-2" @click="openStopModal = true">Add Stop</UButton>
-      <StopsTable :stops="trip?.stops || []" :tripId="tripId" />
+      <!--      <StopsTable :stops="trip?.stops || []" :tripId="tripId" />-->
     </section>
 
     <!-- Modals -->
@@ -43,17 +43,17 @@
       :tripId="tripId"
       @update:open="openFlightModal = $event"
     />
-    <AddCarModal
-      :open="openCarModal"
-      :tripId="tripId"
-      @update:open="openCarModal = $event"
-    />
+    <!--    <AddCarModal-->
+    <!--      :open="openCarModal"-->
+    <!--      :tripId="tripId"-->
+    <!--      @update:open="openCarModal = $event"-->
+    <!--    />-->
 
-    <AddStopModal
-      :open="openStopModal"
-      :tripId="tripId"
-      @update:open="openStopModal = $event"
-    />
+    <!--    <AddStopModal-->
+    <!--      :open="openStopModal"-->
+    <!--      :tripId="tripId"-->
+    <!--      @update:open="openStopModal = $event"-->
+    <!--    />-->
   </div>
 </template>
 
@@ -72,26 +72,12 @@ const tripId = route.params.tripId as string;
 
 const trip = computed(() => tripStore.trips[tripId]);
 
-const AddCarModal = defineComponent({
-  name: "AddCarModal",
-  template: "<div />",
-});
-
-const AddStopModal = defineComponent({
-  name: "AddStopModal",
-  props: { open: Boolean, tripId: String },
-  emits: ["update:open"],
-  template: "<div />", // placeholder
-});
-
 const CarRentalsTable = defineComponent({
   name: "CarRentalsTable",
-  template: "<div />",
 });
 
 const StopsTable = defineComponent({
   name: "StopsTable",
-  template: "<div />",
 });
 
 // Modal state

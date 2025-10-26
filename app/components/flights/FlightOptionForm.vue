@@ -6,25 +6,43 @@
     class="space-y-4"
     @submit="onSubmit"
   >
-    <UFormField label="Airline" name="provider">
-      <UInput v-model="state.provider" />
+    <UFormField class="w-1/2" label="Airline" name="provider">
+      <BoundSelect
+        v-model="airlineSelectValue"
+        :items="airlineSelectItems"
+        placeholder="Select airline"
+      />
     </UFormField>
 
     <div class="flex gap-2">
-      <UFormField label="From" name="from">
-        <UInput v-model="state.from" />
+      <UFormField class="w-1/2" label="From Airport" name="fromAirport">
+        <BoundSelect
+          v-model="departureAirportValue"
+          :items="airportSelectItems"
+          placeholder="Select departure airport"
+        />
       </UFormField>
-      <UFormField label="To" name="to">
-        <UInput v-model="state.to" />
+
+      <UFormField class="w-1/2" label="To Airport" name="toAirport">
+        <BoundSelect
+          v-model="arrivalAirportValue"
+          :items="airportSelectItems"
+          placeholder="Select arrival airport"
+        />
       </UFormField>
     </div>
 
     <div class="flex gap-2">
-      <UFormField label="Departure" name="departureDateTime">
-        <UInput v-model="state.departureDateTime" type="datetime-local" />
+      <UFormField class="w-1/2" label="Departure" name="departureDate">
+        <UInput v-model="state.departureDate" class="w-full" type="date" />
       </UFormField>
-      <UFormField label="Arrival" name="arrivalDateTime">
-        <UInput v-model="state.arrivalDateTime" type="datetime-local" />
+      <UFormField class="w-1/2" label="Arrival" name="arrivalDate">
+        <UInput
+          v-model="state.arrivalDate"
+          :min="state.departureDate"
+          class="w-full"
+          type="date"
+        />
       </UFormField>
     </div>
 
@@ -49,17 +67,27 @@
       </UFormField>
     </div>
 
-    <UFormField label="Class" name="class">
-      <USelect v-model="classSelectValue" :items="classSelectItems" />
-    </UFormField>
+    <div class="grid grid-cols-3 gap-2">
+      <UFormField label="Class" name="travelClass">
+        <USelect
+          v-model="classSelectValue"
+          :items="travelClassSelectItem"
+          class="w-full"
+        />
+      </UFormField>
 
-    <UFormField label="Base Fare" name="baseFare">
-      <UInput v-model.number="state.baseFare" type="number" />
-    </UFormField>
+      <UFormField label="Base Fare" name="baseFare">
+        <UInput v-model.number="state.baseFare" type="number" />
+      </UFormField>
 
-    <UFormField label="Currency" name="currency">
-      <UInput v-model="state.currency" />
-    </UFormField>
+      <UFormField label="Currency" name="currency">
+        <USelect
+          v-model="currencySelectValue"
+          :items="currencySelectItem"
+          class="w-full"
+        />
+      </UFormField>
+    </div>
 
     <div class="grid grid-cols-3 gap-2">
       <UFormField label="Seat Reservation" name="extras.seatReservation">
@@ -76,13 +104,17 @@
 </template>
 
 <script lang="ts" setup>
-import { watch } from "vue";
+import { toRef, watch } from "vue";
 import * as z from "zod";
 import type { FormSubmitEvent, SelectItem } from "@nuxt/ui";
 import type { FlightOption } from "~/types/tripTypes";
+import { normalizeAirline } from "~/utils/airlineHelper";
+import { normalizeAirport } from "~/utils/airportHelper";
+import { airlines } from "~/data/airlines";
+import { airports } from "~/data/airports";
 
 const props = defineProps<{
-  state: FlightOption;
+  state?: FlightOption;
 }>();
 
 const emit = defineEmits<{
@@ -91,20 +123,71 @@ const emit = defineEmits<{
 
 const form = ref<any>();
 
-const classSelectItems = ref<SelectItem[]>([
+const state = reactive<Partial<FlightOption>>({
+  airline: normalizeAirline(props.state?.airline),
+  fromAirport: normalizeAirport(props.state?.fromAirport),
+  toAirport: normalizeAirport(props.state?.toAirport),
+  departureDate: "",
+  arrivalDate: "",
+  durationInAirMin: 0,
+  durationLayoversMin: 0,
+  stopovers: [],
+  travelClass: "economy",
+  baseFare: 0,
+  currency: "EUR",
+  extras: { seatReservation: 0, checkedBaggage: 0, other: 0 },
+  ...(props.state ?? {}),
+});
+
+const airlineSelectItems: { label: string; value: string }[] = airlines.map(
+  (a) => ({
+    label: `${a.name} (${a.code})`,
+    value: a.code,
+  }),
+);
+
+const airportSelectItems: { label: string; value: string }[] = airports.map(
+  (a) => ({
+    label: `${a.name} (${a.code})`,
+    value: a.code,
+  }),
+);
+
+const travelClassSelectItem = ref<SelectItem[]>([
   { label: "Economy", value: "economy" },
   { label: "Premium Economy", value: "premium_economy" },
   { label: "Business", value: "business" },
 ]);
 
-const classSelectValue = ref(props.state.class || "economy");
+const currencySelectItem = ref<string[]>(["USD", "EUR", "XCD"]);
+
+const airlineSelectValue = ref<{ label: string; value: string } | undefined>(
+  undefined,
+);
+const departureAirportValue = ref<{ label: string; value: string } | undefined>(
+  undefined,
+);
+const arrivalAirportValue = ref<{ label: string; value: string } | undefined>(
+  undefined,
+);
+const classSelectValue = ref(state.travelClass || "economy");
+const currencySelectValue = ref(state.currency || "EUR");
 
 const schema = z.object({
-  provider: z.string().min(1),
-  from: z.string().min(1),
-  to: z.string().min(1),
-  departureDateTime: z.string().min(1),
-  arrivalDateTime: z.string().min(1),
+  airline: z.object({
+    label: z.string().min(1),
+    value: z.string().min(1),
+  }),
+  fromAirport: z.object({
+    label: z.string().min(1),
+    value: z.string().min(1),
+  }),
+  toAirport: z.object({
+    label: z.string().min(1),
+    value: z.string().min(1),
+  }),
+  departureDate: z.string().min(1),
+  arrivalDate: z.string().min(1),
   durationInAirMin: z.number().int().nonnegative(),
   durationLayoversMin: z.number().int().nonnegative(),
   stopovers: z
@@ -115,7 +198,7 @@ const schema = z.object({
       }),
     )
     .optional(),
-  class: z.enum(["economy", "premium_economy", "business"]),
+  travelClass: z.enum(["economy", "premium_economy", "business"]),
   baseFare: z.number().nonnegative(),
   extras: z
     .object({
@@ -129,10 +212,6 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>;
 
-watch(classSelectValue, (val) => {
-  props.state.class = val;
-});
-
 const onSubmit = (event: FormSubmitEvent<Schema>) => {
   if (!event) return;
   emit("submit");
@@ -141,6 +220,45 @@ const onSubmit = (event: FormSubmitEvent<Schema>) => {
 const submit = () => {
   form.value?.submit();
 };
+
+const bindSelect = <T extends { label: string; value: string }>(
+  selectRef: Ref<T | undefined>,
+  targetState: Ref<T | undefined>,
+) => {
+  watch(selectRef, (val) => {
+    targetState.value = val ?? undefined;
+  });
+};
+
+bindSelect(airlineSelectValue, toRef(state, "airline"));
+bindSelect(departureAirportValue, toRef(state, "fromAirport"));
+bindSelect(arrivalAirportValue, toRef(state, "toAirport"));
+
+watch(classSelectValue, (val) => {
+  state.travelClass = val;
+});
+
+watch(
+  () => state.departureDate,
+  (newDeparture) => {
+    if (!newDeparture) return;
+
+    const departure = new Date(newDeparture);
+    const arrival = state.arrivalDate ? new Date(state.arrivalDate) : null;
+
+    if (!arrival || arrival <= departure) {
+      const nextDay = new Date(departure);
+      nextDay.setDate(departure.getDate() + 1);
+
+      state.arrivalDate = nextDay.toISOString().split("T")[0];
+    }
+  },
+  { immediate: false },
+);
+
+watch(currencySelectValue, (val) => {
+  state.currency = val;
+});
 
 defineExpose({ submit });
 </script>

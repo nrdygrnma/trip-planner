@@ -23,10 +23,10 @@
           :key="flight.id"
           class="border-t border-gray-200 hover:bg-gray-50"
         >
-          <td class="p-2">{{ flight.provider }}</td>
+          <td class="p-2">{{ flight.airline }}</td>
           <td class="p-2">{{ flight.from }} → {{ flight.to }}</td>
-          <td class="p-2">{{ formatDateTime(flight.departureDateTime) }}</td>
-          <td class="p-2">{{ formatDateTime(flight.arrivalDateTime) }}</td>
+          <td class="p-2">{{ formatDate(flight.departureDate) }}</td>
+          <td class="p-2">{{ formatDate(flight.arrivalDate) }}</td>
           <td class="p-2 capitalize">{{ flight.class }}</td>
           <td class="p-2">{{ flight.baseFare }} {{ flight.currency }}</td>
           <td class="p-2 flex gap-2">
@@ -110,7 +110,7 @@ const handleFlightSubmit = (flight: FlightOption) => {
   modalOpen.value = false;
 };
 
-const formatDateTime = (datetime: string) => {
-  return new Date(datetime).toLocaleString();
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleString();
 };
 </script>

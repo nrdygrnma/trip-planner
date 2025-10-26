@@ -17,17 +17,27 @@ export interface Stopover {
   durationMin?: number;
 }
 
+export interface Airline {
+  code: string;
+  name: string;
+}
+
+export interface Airport {
+  code: string;
+  name: string;
+}
+
 export interface FlightOption {
   id: string;
-  provider: string;
-  from: string;
-  to: string;
-  departureDateTime: string;
-  arrivalDateTime: string;
+  airline: { label: string; value: string };
+  fromAirport: { label: string; value: string };
+  toAirport: { label: string; value: string };
+  departureDate: string;
+  arrivalDate: string;
   durationInAirMin: number;
   durationLayoversMin: number;
   stopovers: Stopover[];
-  class: "economy" | "premium_economy" | "business";
+  travelClass: "economy" | "premium_economy" | "business";
   baseFare: number;
   extras: {
     seatReservation: number;
