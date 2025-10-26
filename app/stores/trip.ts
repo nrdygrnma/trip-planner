@@ -183,9 +183,9 @@ export const useTripStore = defineStore("trip", () => {
     const flightCostEUR = flight
       ? convertToEUR(
           flight.baseFare +
-            (flight.extras.seatReservation || 0) +
-            (flight.extras.checkedBaggage || 0) +
-            (flight.extras.other || 0),
+            (flight.extras!.seatReservation || 0) +
+            (flight.extras!.checkedBaggage || 0) +
+            (flight.extras!.other || 0),
           flight.currency,
         )
       : 0;

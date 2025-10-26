@@ -44,9 +44,9 @@ const isEdit = computed(() => !!props.flight);
 
 const getFlightState = (flight?: FlightOption): FlightOption => ({
   id: flight?.id || uuidv4(),
-  provider: flight?.airline || "",
-  from: flight?.from || "",
-  to: flight?.to || "",
+  airline: flight?.airline || { label: "", value: "" },
+  fromAirport: flight?.fromAirport || { label: "", value: "" },
+  toAirport: flight?.toAirport || { label: "", value: "" },
   departureDate: flight?.departureDate || "",
   arrivalDate: flight?.arrivalDate || "",
   durationInAirMin: flight?.durationInAirMin ?? 0,

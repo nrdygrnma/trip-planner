@@ -1,28 +1,29 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  airline = "prisma-client"
-  output  = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  airline = "sqlite"
-  url     = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
-}
-
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Flight {
+  id                  String @id @default(cuid())
+  tripId              String
+  airlineLabel        String
+  airlineCode         String
+  fromAirportLabel    String
+  fromAirportCode     String
+  toAirportLabel      String
+  toAirportCode       String
+  departureDate       String
+  arrivalDate         String
+  durationInAirMin    Int
+  durationLayoversMin Int
+  stopovers           Json
+  travelClass         String
+  baseFare            Float
+  extras              Json
+  currency            String
+  totalCostEUR        Float?
 }

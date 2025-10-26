@@ -14,7 +14,7 @@
       />
     </UFormField>
 
-    <div class="flex gap-2">
+    <div class="flex gap-4">
       <UFormField class="w-1/2" label="From Airport" name="fromAirport">
         <BoundSelect
           v-model="departureAirportValue"
@@ -32,7 +32,7 @@
       </UFormField>
     </div>
 
-    <div class="flex gap-2">
+    <div class="flex gap-4">
       <UFormField class="w-1/2" label="Departure" name="departureDate">
         <UInput v-model="state.departureDate" class="w-full" type="date" />
       </UFormField>
@@ -46,7 +46,7 @@
       </UFormField>
     </div>
 
-    <div class="flex gap-2">
+    <div class="flex gap-4">
       <UFormField label="Duration in Air (min)" name="durationInAirMin">
         <UInput v-model.number="state.durationInAirMin" type="number" />
       </UFormField>
@@ -67,7 +67,7 @@
       </UFormField>
     </div>
 
-    <div class="grid grid-cols-3 gap-2">
+    <div class="grid grid-cols-3 gap-4">
       <UFormField label="Class" name="travelClass">
         <USelect
           v-model="classSelectValue"
@@ -89,7 +89,7 @@
       </UFormField>
     </div>
 
-    <div class="grid grid-cols-3 gap-2">
+    <div class="grid grid-cols-3 gap-4">
       <UFormField label="Seat Reservation" name="extras.seatReservation">
         <UInput v-model.number="state.extras!.seatReservation" type="number" />
       </UFormField>

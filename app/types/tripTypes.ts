@@ -27,6 +27,12 @@ export interface Airport {
   name: string;
 }
 
+export interface FlightExtras {
+  seatReservation: number;
+  checkedBaggage: number;
+  other: number;
+}
+
 export interface FlightOption {
   id: string;
   airline: { label: string; value: string };
@@ -36,14 +42,10 @@ export interface FlightOption {
   arrivalDate: string;
   durationInAirMin: number;
   durationLayoversMin: number;
-  stopovers: Stopover[];
+  stopovers?: Stopover[];
   travelClass: "economy" | "premium_economy" | "business";
   baseFare: number;
-  extras: {
-    seatReservation: number;
-    checkedBaggage: number;
-    other: number;
-  };
+  extras?: FlightExtras;
   currency: string;
   totalCostEUR?: number;
 }

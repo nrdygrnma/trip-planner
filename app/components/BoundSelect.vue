@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-import { defineEmits, defineProps } from "vue";
 import type { SelectItem } from "@nuxt/ui";
 import SmartSelectMenu from "./SmartSelectMenu.vue";
 
